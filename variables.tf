@@ -3,11 +3,11 @@ variable "aws_region" {
 }
 
 variable "cluster-name" {
-  default = "gourmeal-node"
+  default = "terraform-eks-demo"
   type    = string
 }
 variable "key_pair_name" {
-  default = "eks"
+  default = "ubuntu"
 }
 variable "eks_node_instance_type" {
   default = "t2.medium"
