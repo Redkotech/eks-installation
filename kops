@@ -1,8 +1,8 @@
 <<kops
-Landmark Technologies 
-Tel: +1 437 215 2483 
-mylandmarktech@gailcom 
-www.mylandmarktech.com 
+Trusted Redeko 
+Tel: +1 2535458354
+trustedredeko2815@yahoo.com 
+www.trustedredeko.com 
 kops
 Setup Kubernetes (K8s) Cluster on AWS Using KOPS
 
@@ -50,33 +50,29 @@ You Created. --> Save.
 
 6) create an S3 bucket Execute below commond in KOPS Server use unique bucket name if you get bucket name exists error.
 
-	aws s3 mb s3://nubonglegah.k8.local
+	aws s3 mb s3://<<unique-bucket-name>>
 	aws s3 ls
 	
-    ex:
-	# S3 bucket name should be unique across AWS
-	aws s3 mb s3://simonlegah.k8s.local    s3://nubong.k8s.local
      
-	Expose environment variable:
+7) Expose environment variable:
 
-    # Add env variables in bashrc
-    vi .bashrc
-	
-	# Give Unique Name And S3 Bucket which you created.
-	export NAME=s3://legah2045.k8.local
-	export KOPS_STATE_STORE=s3://legah2045.k8.local
+   Add env variables in bashrc
+   a. vi .bashrc
+	# 
+	copy and paste below lines with the Unique cluster Name And S3 Bucket which you created into .bashrc .
+	export NAME=s3://<<cluster-name>>
+	export KOPS_STATE_STORE=s3://<<unique-bucket-name>>
  
-    source .bashrc
+8). Refresh the .bashrc by running:
+        source .bashrc
 	
-7) Create sshkeys before creating cluster
+9) Create sshkeys before creating cluster
 
     ssh-keygen
  
 
-8)Create kubernetes cluster definitions on S3 bucket
+10) Create kubernetes cluster definitions on S3 bucket
 
-	kops create cluster --zones us-east-2c --networking weave --master-size t2.medium --master-count 1 --node-size t2.large --node-count=2 ${NAME}
-	
 	kops create cluster --zones us-east-1e,zones us-east-2c --networking weave --master-size t2.medium --master-count 2 --node-size t2.micro --node-count=2 ${NAME}
 
 	kops create secret --name ${NAME} sshpublickey admin -i ~/.ssh/id_rsa.pub
@@ -102,7 +98,7 @@ To Delete Cluster
 ====================================================================================================
 
 
-IF you wan to SSH to Kubernates Master or Nodes Created by KOPS. You can SSH From KOPS_Server
+IF you want to SSH to Kubernates Master or Nodes Created by KOPS. You can SSH From KOPS_Server
 
 ssh  admin@<IPOrDNS>
 it above command  is not working
