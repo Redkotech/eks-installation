@@ -1,13 +1,21 @@
 <<kops
-Landmark Technologies 
-Tel: +1 437 215 2483 
-mylandmarktech@gailcom 
-www.mylandmarktech.com 
+Trusted Redeko 
+Tel: +1 2535458354
+trustedredeko2815@yahoo.com 
+www.trustedredeko.com 
 kops
 Setup Kubernetes (K8s) Cluster on AWS Using KOPS
 
 #!/bin/bash
 #1) Create Ubuntu EC2 instance
+
+#As a good security practice, ubuntu is not advised to run eks service as a root user, 
+# so create a new user called kops and grant sudo access to manage eks services as follows. 
+sudo hostname eks
+sudo useradd kops
+# Grand sudo access to nexus user
+sudo echo "kops ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/kops
+sudo su - kops
 
 #2) install AWSCLI
 
@@ -23,7 +31,7 @@ Setup Kubernetes (K8s) Cluster on AWS Using KOPS
 
  	#Install wget if not installed
  	sudo apt install wget -y
- 	sudo wget https://github.com/kubernetes/kops/releases/download/v1.16.1/kops-linux-amd64
+ 	sudo wget https://github.com/kubernetes/kops/releases/download/v1.25.0/kops-linux-amd64
  	sudo chmod +x kops-linux-amd64
  	sudo mv kops-linux-amd64 /usr/local/bin/kops
  
@@ -32,8 +40,7 @@ Setup Kubernetes (K8s) Cluster on AWS Using KOPS
  sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
  sudo chmod +x ./kubectl
  sudo mv ./kubectl /usr/local/bin/kubectl
- aws s3 mb s3://nubonglegah.k8.local
- aws s3 ls
+ 
 
 5) Create an IAM role from Consloe or CLI with below Policies.
 
@@ -41,6 +48,7 @@ Setup Kubernetes (K8s) Cluster on AWS Using KOPS
 	AmazonS3FullAccess
 	IAMFullAccess 
 	AmazonVPCFullAccess
+	AmazonRoute53FullAccess
 
 
 Then Attach IAM role to ubuntu server from Console Select KOPS Server --> Actions --> Instance Settings --> Attach/Replace IAM Role --> Select the role which
@@ -50,21 +58,17 @@ You Created. --> Save.
 
 6) create an S3 bucket Execute below commond in KOPS Server use unique bucket name if you get bucket name exists error.
 
-	aws s3 mb s3://nubonglegah.k8.local
-	aws s3 ls
+	    aws s3 mb s3://<<bucket-name>>
+	    aws s3 ls
 	
-    ex:
-	# S3 bucket name should be unique across AWS
-	aws s3 mb s3://simonlegah.k8s.local    s3://nubong.k8s.local
-     
 	Expose environment variable:
 
     # Add env variables in bashrc
-    vi .bashrc
+        vi .bashrc
 	
 	# Give Unique Name And S3 Bucket which you created.
-	export NAME=s3://legah2045.k8.local
-	export KOPS_STATE_STORE=s3://legah2045.k8.local
+	   export NAME=s3://<<unique-cluster-name>>
+	   export KOPS_STATE_STORE=s3://<<bucket-name>>
  
     source .bashrc
 	
@@ -73,10 +77,9 @@ You Created. --> Save.
     ssh-keygen
  
 
-8)Create kubernetes cluster definitions on S3 bucket
+8)Create kubernetes cluster definitions on S3 bucket and add ssh-public key to the cluster to allow admin passwordless access to cluster
 
-	kops create cluster --zones us-east-2c --networking weave --master-size t2.medium --master-count 1 --node-size t2.large --node-count=2 ${NAME}
-	
+		
 	kops create cluster --zones us-east-1e,zones us-east-2c --networking weave --master-size t2.medium --master-count 2 --node-size t2.micro --node-count=2 ${NAME}
 
 	kops create secret --name ${NAME} sshpublickey admin -i ~/.ssh/id_rsa.pub
@@ -102,7 +105,7 @@ To Delete Cluster
 ====================================================================================================
 
 
-IF you wan to SSH to Kubernates Master or Nodes Created by KOPS. You can SSH From KOPS_Server
+IF you want to SSH to Kubernates Master or Nodes Created by KOPS. You can SSH From KOPS_Server
 
 ssh  admin@<IPOrDNS>
 it above command  is not working
